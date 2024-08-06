@@ -1,0 +1,83 @@
+﻿@page "/"
+@rendermode InteractiveServer
+
+<PageTitle>W500</PageTitle>
+
+@using W500Core
+@using Microsoft.AspNetCore.Components.Forms
+@inject W500Service W500Service
+
+<p>
+    <h5>Enter Word and Score together (ex: "salty014")</h5>
+    <input @oninput="EnterGuess" value="@GuessEntry" />
+</p>
+<p>
+    <h5>Suggested Next Guess: @Suggestion</h5>
+    <h5># Words Remaining: @WordsRemaining</h5>
+</p>
+<p>
+    <button @onclick="Reset">New Game</button>        
+</p>
+@if (_winner)
+{
+<p>
+    <label class="btn-lg btn-success">Winner!</label>
+</p>        
+}
+    
+@code {
+    private string? GuessEntry { set; get; }
+    private string? Suggestion { set; get; }
+    private int? WordsRemaining { set; get; }
+    private bool _winner = false;
+
+    protected async override Task OnInitializedAsync()
+    {
+        await Reset();
+    }
+
+    protected async Task Reset()
+    {
+        await W500Service.Reset();
+        Suggestion = string.Empty;
+        WordsRemaining = await W500Service.GetWordsRemaining();
+        _winner = false;
+    }
+
+    private bool ValidateGuess(string guessEntry)
+    {
+        //chars 1-5 are alphabetical
+        for(int i = 0; i<5; i++)
+        {
+            if (!Char.IsLower(guessEntry[i])) return false;
+        }
+
+        //chars 6-8 are int 0-5
+        int sum = 0;
+        for(int i = 5; i<8; i++)
+        {
+            if (!Char.IsDigit(guessEntry[i])) return false;
+            sum += Convert.ToInt32(guessEntry.Substring(i, 1));
+        }
+
+        //add up to 5
+        if (sum != 5) return false;
+
+        return true;
+    }
+
+    private async void EnterGuess(ChangeEventArgs args)
+    {
+        GuessEntry = args.Value.ToString().ToLower();
+        if (GuessEntry?.Length != 8) return;
+        if (!ValidateGuess(GuessEntry)) return;
+        var word = GuessEntry.Substring(0, 5);
+        var green = Convert.ToInt32(GuessEntry.Substring(5, 1));
+        var yellow = Convert.ToInt32(GuessEntry.Substring(6, 1));
+        var red = Convert.ToInt32(GuessEntry.Substring(7, 1));
+        await W500Service.EnterGuess(word, green, yellow, red);
+        Suggestion = await W500Service.GetSuggestions(5);
+        WordsRemaining = await W500Service.GetWordsRemaining();
+        GuessEntry = string.Empty;
+    }
+}

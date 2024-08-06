@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\W500UI.props" />
+</Project>
