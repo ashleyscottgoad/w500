@@ -1,0 +1,6 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/W500Core/bin/Debug/net8.0
+/W500UI/obj/Debug/net8.0/apphost.exe
