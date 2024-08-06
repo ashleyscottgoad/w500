@@ -1,6 +1,0 @@
-D:\temp\W500\W500UI\obj\Release\net8.0\W500UI.csproj.AssemblyReference.cache
-D:\temp\W500\W500UI\obj\Release\net8.0\W500UI.GeneratedMSBuildEditorConfig.editorconfig
-D:\temp\W500\W500UI\obj\Release\net8.0\W500UI.AssemblyInfoInputs.cache
-D:\temp\W500\W500UI\obj\Release\net8.0\W500UI.AssemblyInfo.cs
-D:\temp\W500\W500UI\obj\Release\net8.0\W500UI.csproj.CoreCompileInputs.cache
-D:\temp\W500\W500UI\obj\Release\net8.0\W500UI.MvcApplicationPartsAssemblyInfo.cache
