@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "5JJcAZVyr0u3x168Z15Sqn8rbhKP8oq/NlIP3xu/iP/hmpUjO3C3Lb5S2BHFaSa/9+N9Z9VtqAhMOwcimFJ6Eg==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\AGoad\\Source\\Repos\\w500\\W500UI\\W500UI.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\AGoad\\.nuget\\packages\\microsoft.netcore.app.host.linux-arm\\8.0.1\\microsoft.netcore.app.host.linux-arm.8.0.1.nupkg.sha512"
+  ],
+  "logs": []
+}
