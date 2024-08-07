@@ -14,6 +14,7 @@
 <p>
     <h5>Suggested Next Guess: @Suggestion</h5>
     <h5># Words Remaining: @WordsRemaining</h5>
+    <h5>Previous Guesses: @Guesses</h5>
 </p>
 <p>
     <button @onclick="Reset">New Game</button>        
@@ -26,6 +27,8 @@
 }
     
 @code {
+    private string Guesses => string.Join(",", _guesses);
+    private List<string> _guesses;
     private string? GuessEntry { set; get; }
     private string? Suggestion { set; get; }
     private int? WordsRemaining { set; get; }
@@ -40,6 +43,7 @@
     {
         await W500Service.Reset();
         Suggestion = string.Empty;
+        _guesses = new List<string>();
         WordsRemaining = await W500Service.GetWordsRemaining();
         _winner = false;
     }
@@ -78,6 +82,8 @@
         await W500Service.EnterGuess(word, green, yellow, red);
         Suggestion = await W500Service.GetSuggestions(5);
         WordsRemaining = await W500Service.GetWordsRemaining();
+        _guesses.Add(GuessEntry);
         GuessEntry = string.Empty;
+        
     }
 }
