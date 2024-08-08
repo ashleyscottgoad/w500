@@ -11,7 +11,7 @@
 
         public Task<string> GetSuggestions(int n)
         {
-            return Task.FromResult(String.Join(',', _words.Take(n).ToArray()));
+            return Task.FromResult(String.Join(",", _words.Take(n).ToArray()));
         }
 
         public async Task EnterGuess(string word, int green, int yellow, int red)

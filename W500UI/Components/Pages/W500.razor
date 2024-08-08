@@ -1,4 +1,5 @@
 ﻿@page "/"
+@page "/w500"
 @rendermode InteractiveServer
 
 <PageTitle>W500</PageTitle>
@@ -27,7 +28,7 @@
 }
     
 @code {
-    private string Guesses => string.Join(",", _guesses);
+    private string Guesses => string.Join("\n", _guesses);
     private List<string> _guesses;
     private string? GuessEntry { set; get; }
     private string? Suggestion { set; get; }

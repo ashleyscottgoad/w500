@@ -153,5 +153,73 @@ namespace W500Core.Properties {
                 return ResourceManager.GetString("sgb-words", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to a
+        ///aa
+        ///aaa
+        ///aaron
+        ///ab
+        ///abandoned
+        ///abc
+        ///aberdeen
+        ///abilities
+        ///ability
+        ///able
+        ///aboriginal
+        ///abortion
+        ///about
+        ///above
+        ///abraham
+        ///abroad
+        ///abs
+        ///absence
+        ///absent
+        ///absolute
+        ///absolutely
+        ///absorption
+        ///abstract
+        ///abstracts
+        ///abu
+        ///abuse
+        ///ac
+        ///academic
+        ///academics
+        ///academy
+        ///acc
+        ///accent
+        ///accept
+        ///acceptable
+        ///acceptance
+        ///accepted
+        ///accepting
+        ///accepts
+        ///access
+        ///accessed
+        ///accessibility
+        ///accessible
+        ///accessing
+        ///accessories
+        ///accessory
+        ///accident
+        ///accidents
+        ///accommodate
+        ///accommodation
+        ///accommodations
+        ///accompanied
+        ///accompanying
+        ///accomplish
+        ///accomplished
+        ///accordance
+        ///according
+        ///accordingly
+        ///account
+        ///ac [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string wordlist_10000 {
+            get {
+                return ResourceManager.GetString("wordlist_10000", resourceCulture);
+            }
+        }
     }
 }

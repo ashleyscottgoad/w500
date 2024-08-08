@@ -10,6 +10,7 @@ namespace W500UI
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddScoped<W500Service>();
+            builder.Services.AddScoped<LbService>();
 
             // Add services to the container.
             builder.Services.AddRazorComponents()

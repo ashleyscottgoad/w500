@@ -6,6 +6,20 @@ namespace W500
     {
         static void Main(string[] args)
         {
+            LbDatabase db = new LbDatabase();
+            Console.WriteLine("Enter LetterBoxed matrix as a 12-character <word>");
+            //raeunoqwtsmy
+            var args1 = Console.ReadLine().Split(' ');
+            var word = args1[0];
+            var validWordsSorted = db.ValidWords(word).OrderByDescending(x => x.Length).ToArray();
+            Console.WriteLine("************************");
+            foreach (var validWord in validWordsSorted.Take(30))
+            {
+                Console.WriteLine(validWord);
+            }
+        }
+        static void MainW500(string[] args)
+        {
             W500Database db = new W500Database();
             db.Initialize();
             var words = db.GetAllWords();
