@@ -3,6 +3,7 @@
     internal class LbDatabase
     {
         public bool Done => _done;
+        public HashSet<char> ValidChars => _validChars;
 
         internal void Initialize()
         {
@@ -12,11 +13,12 @@
         internal HashSet<string> ValidWords(string box)
         {
             var words = new HashSet<string>();
+            _validChars = new HashSet<char>();
             if (box.Length != W500Constants.LbWordLength) return words;
             var allWords = GetAllWords();
             HashSet<string> pairs = new HashSet<string>();
-            
-            for(int i = 0; i < W500Constants.LbWordLength; i++)
+
+            for (int i = 0; i < W500Constants.LbWordLength; i++)
             {
                 for (int j = 0; j < W500Constants.LbWordLength; j++)
                 {
@@ -27,15 +29,15 @@
                     if (!pairs.Contains(s1)) pairs.Add(s1);
                 }
             }
-            var validChars = box.ToCharArray();
+            _validChars = box.ToHashSet();
 
-            foreach (var word in allWords) 
+            foreach (var word in allWords)
             {
                 bool allow = true;
                 if (word.Length < 3) continue;
-                var intersection = word.ToCharArray().Intersect(validChars).ToArray();
+                var intersection = word.ToCharArray().Intersect(_validChars).ToArray();
                 if (intersection.Length != word.Length) continue;
-                for(int i = 0; i < word.Length - 1; i++)
+                for (int i = 0; i < word.Length - 1; i++)
                 {
                     char c1 = word[i] < word[i + 1] ? word[i] : word[i + 1];
                     char c2 = word[i] < word[i + 1] ? word[i + 1] : word[i];
@@ -61,5 +63,6 @@
         }
 
         private bool _done;
+        private HashSet<char> _validChars;
     }
 }

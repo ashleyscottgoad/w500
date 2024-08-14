@@ -12,41 +12,67 @@
     <input @oninput="EnterBox" value="@BoxEntry" />
 </p>
 <p>
-    <h5>Suggested Words: @Suggestion</h5>
+    <table>
+        <thead>
+            <tr>
+                <td><b>Letter</b></td>
+                <td><b>Starts With</b></td>
+                <td><b>Ends With</b></td>
+            </tr>
+        </thead>
+        <tbody>
+                @foreach (var s in LbSuggestions.OrderBy(x=>x.Letter))
+                {
+                <tr>
+                    <td>
+                        @s.Letter
+                    </td>
+                    <td>
+                        @String.Join(", ", s.StartsWith)
+                    </td>
+                    <td>
+                        @String.Join(", ", s.EndsWith)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </p>
 <p>
-    <button @onclick="Reset">New Game</button>        
+    <button @onclick="NewGame">New Game</button>        
 </p>
-@if (_winner)
-{
 <p>
-    <label class="btn-lg btn-success">Winner!</label>
-</p>        
-}
-    
+    <button @onclick="ResetGuesses">Reset Guesses</button>
+</p>
+
 @code {
     private string? BoxEntry { set; get; }
-    private string? Suggestion { set; get; }
-    private bool _winner = false;
+    private List<LbSuggestion> LbSuggestions;
 
     protected async override Task OnInitializedAsync()
     {
-        await Reset();
+        await NewGame();
     }
 
-    protected async Task Reset()
+    protected async Task NewGame()
     {
         await LbService.Reset();
-        Suggestion = string.Empty;
-        _winner = false;
+        LbSuggestions = new List<LbSuggestion>();
     }
+
+    protected async Task ResetGuesses()
+    {
+        await LbService.Reset();
+        LbSuggestions = new List<LbSuggestion>();
+    }
+
 
     private async void EnterBox(ChangeEventArgs args)
     {
         BoxEntry = args.Value.ToString().ToLower();
         if (BoxEntry?.Length != W500Constants.LbWordLength) return;
         await LbService.EnterBox(BoxEntry);
-        Suggestion = await LbService.GetSuggestions(30);
+        LbSuggestions = await LbService.GetSuggestions(5);
         BoxEntry = string.Empty;
         
     }

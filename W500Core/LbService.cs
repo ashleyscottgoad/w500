@@ -8,9 +8,19 @@
             _db.Initialize();
         }
 
-        public Task<string> GetSuggestions(int n)
+        public Task<List<LbSuggestion>> GetSuggestions(int n)
         {
-            return Task.FromResult(String.Join(" => ", _words.OrderByDescending(x=>x.Length).Take(n).ToArray()));
+            List<LbSuggestion> result = new List<LbSuggestion>();
+
+            foreach (var c in _db.ValidChars)
+            {
+                result.Add(new LbSuggestion(
+                    c,
+                    _words.Where(x => x.StartsWith(c)).OrderByDescending(x => x.Length).Take(n).ToList(),
+                    _words.Where(x => x.EndsWith(c)).OrderByDescending(x => x.Length).Take(n).ToList()));
+            }
+
+            return Task.FromResult(result);
         }
 
         public async Task EnterBox(string word)
