@@ -12,16 +12,20 @@
     <input @oninput="EnterBox" value="@BoxEntry" />
 </p>
 <p>
+    @LbPath
+</p>
+<p>
     <table>
         <thead>
             <tr>
                 <td><b>Letter</b></td>
                 <td><b>Starts With</b></td>
                 <td><b>Ends With</b></td>
+                <td><b>Contains</b></td>
             </tr>
         </thead>
         <tbody>
-                @foreach (var s in LbSuggestions.OrderBy(x=>x.Letter))
+                @foreach (var s in LbSuggestions.OrderBy(x=>x.Contains.Count))
                 {
                 <tr>
                     <td>
@@ -33,6 +37,9 @@
                     <td>
                         @String.Join(", ", s.EndsWith)
                     </td>
+                    <td>
+                        @String.Join(", ", s.Contains)
+                    </td>
                 </tr>
             }
         </tbody>
@@ -41,13 +48,12 @@
 <p>
     <button @onclick="NewGame">New Game</button>        
 </p>
-<p>
-    <button @onclick="ResetGuesses">Reset Guesses</button>
-</p>
+
 
 @code {
     private string? BoxEntry { set; get; }
     private List<LbSuggestion> LbSuggestions;
+    private string? LbPath { set; get; }
 
     protected async override Task OnInitializedAsync()
     {
@@ -72,8 +78,8 @@
         BoxEntry = args.Value.ToString().ToLower();
         if (BoxEntry?.Length != W500Constants.LbWordLength) return;
         await LbService.EnterBox(BoxEntry);
-        LbSuggestions = await LbService.GetSuggestions(5);
+        LbSuggestions = await LbService.GetSuggestions();
         BoxEntry = string.Empty;
-        
+        LbPath = await LbService.ConstructNetwork();
     }
 }

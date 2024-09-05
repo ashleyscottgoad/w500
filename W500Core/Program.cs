@@ -1,4 +1,6 @@
-﻿using W500Core;
+﻿using QuickGraph.Data;
+using System.Data;
+using W500Core;
 
 namespace W500
 {
@@ -6,17 +8,16 @@ namespace W500
     {
         static void Main(string[] args)
         {
-            LbDatabase db = new LbDatabase();
-            Console.WriteLine("Enter LetterBoxed matrix as a 12-character <word>");
+            //LbDatabase db = new LbDatabase();
+            //Console.WriteLine("Enter LetterBoxed matrix as a 12-character <word>");
             //raeunoqwtsmy
-            var args1 = Console.ReadLine().Split(' ');
-            var word = args1[0];
-            var validWordsSorted = db.ValidWords(word).OrderByDescending(x => x.Length).ToArray();
-            Console.WriteLine("************************");
-            foreach (var validWord in validWordsSorted.Take(30))
-            {
-                Console.WriteLine(validWord);
-            }
+            //var args1 = Console.ReadLine().Split(' ');
+            //var word = args1[0];
+            var word = "raeunoqwtsmy";
+            LbService svc = new LbService();
+            svc.Reset();
+            svc.EnterBox(word);
+            svc.ConstructNetwork();
         }
         static void MainW500(string[] args)
         {

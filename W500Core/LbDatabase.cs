@@ -59,7 +59,7 @@
 
         internal HashSet<string> GetAllWords()
         {
-            return Properties.Resources.wordlist_10000.Split('\n').ToHashSet();
+            return Properties.Resources.wordlist_4000.Split(Environment.NewLine).ToHashSet();
         }
 
         private bool _done;

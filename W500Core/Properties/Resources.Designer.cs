@@ -221,5 +221,100 @@ namespace W500Core.Properties {
                 return ResourceManager.GetString("wordlist_10000", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to the
+        ///and
+        ///have
+        ///that
+        ///for
+        ///you
+        ///with
+        ///say
+        ///this
+        ///they
+        ///but
+        ///his
+        ///from
+        ///not
+        ///she
+        ///as
+        ///what
+        ///their
+        ///can
+        ///who
+        ///get
+        ///would
+        ///her
+        ///all
+        ///make
+        ///about
+        ///know
+        ///will
+        ///one
+        ///time
+        ///there
+        ///year
+        ///think
+        ///when
+        ///which
+        ///them
+        ///some
+        ///people
+        ///take
+        ///out
+        ///into
+        ///just
+        ///see
+        ///him
+        ///your
+        ///come
+        ///could
+        ///now
+        ///than
+        ///like
+        ///other
+        ///how
+        ///then
+        ///its
+        ///our
+        ///two
+        ///more
+        ///these
+        ///want
+        ///way
+        ///look
+        ///first
+        ///also
+        ///new
+        ///because
+        ///day
+        ///use
+        ///man
+        ///find
+        ///here
+        ///thing
+        ///give
+        ///many
+        ///well
+        ///only
+        ///those
+        ///tell
+        ///very
+        ///even
+        ///back
+        ///any
+        ///good
+        ///woman
+        ///through
+        ///life
+        ///child
+        ///work        /// [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string wordlist_4000 {
+            get {
+                return ResourceManager.GetString("wordlist_4000", resourceCulture);
+            }
+        }
     }
 }
