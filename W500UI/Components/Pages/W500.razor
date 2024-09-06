@@ -9,13 +9,23 @@
 @inject W500Service W500Service
 
 <p>
-    <h5>Enter Word + Score (ex: "salty014")</h5>
+    <h5>Enter Word + Score</h5>
+    <h6><i>Ex: "salty014" represents a score of 0 green, 1 yellow, 4 red</i></h6>
     <input @oninput="EnterGuess" value="@GuessEntry" />
 </p>
 <p>
-    <h5>Suggested Next Guess: @Suggestion</h5>
-    <h5># Words Remaining: @WordsRemaining</h5>
-    <h5>Previous Guesses: @Guesses</h5>
+@if (Suggestion != string.Empty)
+    {
+        <h6>Suggested Next Guess: @Suggestion</h6>
+    }
+@if (WordsRemaining != 0)
+    {
+        <h6># Words Remaining: @WordsRemaining</h6>
+    }
+@if (@Guesses != string.Empty)
+    {
+        <h6>Previous Guesses: @Guesses</h6>
+    }
 </p>
 <p>
     <button @onclick="Reset">New Game</button>        
@@ -84,7 +94,6 @@
         Suggestion = await W500Service.GetSuggestions(5);
         WordsRemaining = await W500Service.GetWordsRemaining();
         _guesses.Add(GuessEntry);
-        GuessEntry = string.Empty;
-        
+        GuessEntry = string.Empty;        
     }
 }

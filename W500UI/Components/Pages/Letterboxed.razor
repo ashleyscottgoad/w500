@@ -9,46 +9,49 @@
 
 <p>
     <h5>Enter "Box" as 12-letter Word</h5>
+    <h6><i>Ex: "gaphutcinmos" would represent a box with sides GAP+HUT+CIN+MOS</i></h6>
     <input @oninput="EnterBox" value="@BoxEntry" />
 </p>
-<p>
-    @LbPath
-</p>
-<p>
-    <table>
-        <thead>
-            <tr>
-                <td><b>Letter</b></td>
-                <td><b>Starts With</b></td>
-                <td><b>Ends With</b></td>
-                <td><b>Contains</b></td>
-            </tr>
-        </thead>
-        <tbody>
-                @foreach (var s in LbSuggestions.OrderBy(x=>x.Contains.Count))
-                {
+@if (LbPath?.Length > 0)
+{
+    <p>
+        <b>Best Solution: </b>@LbPath        
+    </p>    
+}
+@if (@LbSuggestions?.Count > 0)
+{
+    <p>
+        <table>
+            <thead>
                 <tr>
-                    <td>
-                        @s.Letter
-                    </td>
-                    <td>
-                        @String.Join(", ", s.StartsWith)
-                    </td>
-                    <td>
-                        @String.Join(", ", s.EndsWith)
-                    </td>
-                    <td>
-                        @String.Join(", ", s.Contains)
-                    </td>
+                    <td><b>Letter</b></td>
+                    <td><b>Starts With</b></td>
+                    <td><b>Ends With</b></td>
+                    <td><b>Contains</b></td>
                 </tr>
-            }
-        </tbody>
-    </table>
-</p>
-<p>
-    <button @onclick="NewGame">New Game</button>        
-</p>
-
+            </thead>
+            <tbody>
+                @foreach (var s in LbSuggestions.OrderBy(x => x.Letter))
+                {
+                    <tr>
+                        <td>
+                            @s.Letter
+                        </td>
+                        <td>
+                            @String.Join(", ", s.StartsWith)
+                        </td>
+                        <td>
+                            @String.Join(", ", s.EndsWith)
+                        </td>
+                        <td>
+                            @String.Join(", ", s.Contains.Except(s.StartsWith).Except(s.EndsWith))
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </p>
+}
 
 @code {
     private string? BoxEntry { set; get; }
@@ -64,6 +67,24 @@
     {
         await LbService.Reset();
         LbSuggestions = new List<LbSuggestion>();
+        await RetrieveDailyPuzzle();
+    }
+
+    protected async Task RetrieveDailyPuzzle()
+    {
+        //get box from https://nytimes.com/puzzles/letter-boxed
+        //validate word
+        //Set BoxEntry
+        //Call SolvePuzzle()
+    }
+
+    private async void SolvePuzzle()
+    {
+        await LbService.EnterBox(BoxEntry);
+        LbSuggestions = await LbService.GetSuggestions();
+        //BoxEntry = string.Empty;
+        await LbService.FindShortestPath(null);
+        LbPath = LbService.BestPath;
     }
 
     protected async Task ResetGuesses()
@@ -77,10 +98,6 @@
     {
         BoxEntry = args.Value.ToString().ToLower();
         if (BoxEntry?.Length != W500Constants.LbWordLength) return;
-        await LbService.EnterBox(BoxEntry);
-        LbSuggestions = await LbService.GetSuggestions();
-        BoxEntry = string.Empty;
-        await LbService.FindShortestPath(null);
-        LbPath = LbService.BestPath;
+        SolvePuzzle();
     }
 }
