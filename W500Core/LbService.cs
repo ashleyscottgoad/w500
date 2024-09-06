@@ -1,9 +1,5 @@
-﻿
-using QuickGraph;
-using QuickGraph.Algorithms;
-using QuickGraph.Algorithms.Search;
+﻿using QuickGraph;
 using QuickGraph.Algorithms.ShortestPath;
-using QuickGraph.Graphviz;
 
 namespace W500Core
 {
@@ -22,9 +18,8 @@ namespace W500Core
 
         public async Task EnterBox(string word)
         {
-            //word = "shlngeriyjut";
-            //jerseys, sunlight
             _words = _db.ValidWords(word);
+            _charsLeft = _db.ValidChars;
             _suggestions = new List<LbSuggestion>();
 
             foreach (var c in _db.ValidChars)
@@ -38,7 +33,7 @@ namespace W500Core
             }
         }
 
-        public async Task<string> ConstructNetwork()
+        private BidirectionalGraph<string, Edge<string>> ConstructGraph()
         {
             var edges = new List<Edge<string>>();
 
@@ -48,40 +43,67 @@ namespace W500Core
                 {
                     foreach (var ew in s.EndsWith)
                     {
-                        edges.Add (new Edge<string>(ew, sw));
+                        edges.Add(new Edge<string>(ew, sw));
                     }
                 }
             }
 
-            HashSet<char> charsLeft = _db.ValidChars;
-            var graph = edges.ToBidirectionalGraph<string, Edge<string>>();
-            Func<Edge<string>, double> edgeCost = edge =>
-            {
-                return 12 - edge.Target.ToCharArray().Distinct().Intersect(charsLeft).Count();
-            };
-            var dij = new DijkstraShortestPathAlgorithm<string, Edge<string>>(graph, edgeCost);
-            HashSet<string> visited = new HashSet<string>();
-            var smallestPool = _suggestions.OrderBy(x => x.Contains.Count).First();
-            var rootWord = smallestPool.Contains.First();
-
-            for(int i = 0; i<10; i++)
-            {
-                visited.Add(rootWord);
-                charsLeft.RemoveWhere(x=>rootWord.Contains(x));
-                dij.Compute(rootWord);
-                var next = dij.Distances.Where(x=>!visited.Contains(x.Key)).OrderBy(x => x.Value).First();
-                rootWord = next.Key;
-                dij.SetRootVertex(rootWord);
-                if (charsLeft.Count == 0) break;
-            }
-
-            return string.Join(" -> ",visited);
+            return edges.ToBidirectionalGraph<string, Edge<string>>();
         }
 
+        public async Task FindShortestPath(BidirectionalGraph<string, Edge<string>> graph)
+        {
+            if (graph == null)
+            {
+                graph = ConstructGraph();
+            }
 
+            string bestPath = string.Empty;
+            int bestPathLength = _maxGuesses;
+            
+            foreach (var rootWord in _words)
+            {
+                var charsLeft = _charsLeft.ToHashSet();
+                Func<Edge<string>, double> edgeCost = edge =>
+                {
+                    return 12 - edge.Target.ToCharArray().Distinct().Intersect(charsLeft).Count();
+                };
+
+                var dij = new DijkstraShortestPathAlgorithm<string, Edge<string>>(graph, edgeCost);
+                HashSet<string> visited = new HashSet<string>();
+                string nextWord = rootWord;
+
+                for (int i = 0; i < _maxGuesses; i++)
+                {
+                    visited.Add(nextWord);
+                    charsLeft.RemoveWhere(x => nextWord.Contains(x));
+                    dij.Compute(nextWord);
+                    var next = dij.Distances.Where(x => !visited.Contains(x.Key)).OrderBy(x => x.Value).First();
+                    nextWord = next.Key;
+                    dij.SetRootVertex(nextWord);
+                    if (charsLeft.Count == 0)
+                    {
+                        if (visited.Count < bestPathLength)
+                        {
+                            bestPathLength = visited.Count;
+                            bestPath = string.Join(" -> ", visited);
+                        }
+                        break;
+                    }
+                }
+            }
+
+            _bestPath = bestPath;
+            _bestPathLength = bestPathLength;
+        }
+
+        public string BestPath => _bestPath;
         private LbDatabase _db;
         private HashSet<string> _words;
+        private string _bestPath = string.Empty;
+        private int _bestPathLength;
         private List<LbSuggestion> _suggestions;
-        private int _maxGuesses = 6;
+        private HashSet<char> _charsLeft = new HashSet<char>();
+        private const int _maxGuesses = 6;
     }
 }

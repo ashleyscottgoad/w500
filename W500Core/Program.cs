@@ -10,14 +10,14 @@ namespace W500
         {
             //LbDatabase db = new LbDatabase();
             //Console.WriteLine("Enter LetterBoxed matrix as a 12-character <word>");
-            //raeunoqwtsmy
+            //gaphutcinmos
             //var args1 = Console.ReadLine().Split(' ');
             //var word = args1[0];
-            var word = "raeunoqwtsmy";
+            var word = "gaphutcinmos";
             LbService svc = new LbService();
             svc.Reset();
             svc.EnterBox(word);
-            svc.ConstructNetwork();
+            svc.FindShortestPath(null);
         }
         static void MainW500(string[] args)
         {

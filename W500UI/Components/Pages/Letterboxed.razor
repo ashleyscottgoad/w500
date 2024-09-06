@@ -80,6 +80,7 @@
         await LbService.EnterBox(BoxEntry);
         LbSuggestions = await LbService.GetSuggestions();
         BoxEntry = string.Empty;
-        LbPath = await LbService.ConstructNetwork();
+        await LbService.FindShortestPath(null);
+        LbPath = LbService.BestPath;
     }
 }
