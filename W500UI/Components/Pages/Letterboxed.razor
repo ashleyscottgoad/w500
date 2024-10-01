@@ -16,34 +16,41 @@
 {
     <p>
         <b>Best Solution: </b>@LbPath        
-    </p>    
+    </p>
 }
+else if (BoxEntry?.Length == 12)
+{
+    <p>
+        <b>No Solution Found!</b>
+    </p>
+}
+
 @if (@LbSuggestions?.Count > 0)
 {
     <p>
-        <table>
-            <thead>
+        <table class="table table-light table-bordered">
+            <thead class="table-dark fw-bold">
                 <tr>
-                    <td><b>Letter</b></td>
-                    <td><b>Starts With</b></td>
-                    <td><b>Ends With</b></td>
-                    <td><b>Contains</b></td>
+                    <td>Letter</td>
+                    <td>Starts With</td>
+                    <td>Ends With</td>
+                    <td>Contains</td>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var s in LbSuggestions.OrderBy(x => x.Letter))
                 {
                     <tr>
-                        <td>
+                        <td class="table-primary fw-bold">
                             @s.Letter
                         </td>
-                        <td>
+                        <td class="table-success">
                             @String.Join(", ", s.StartsWith)
                         </td>
-                        <td>
+                        <td class="table-warning">
                             @String.Join(", ", s.EndsWith)
                         </td>
-                        <td>
+                        <td class="table-secondary">
                             @String.Join(", ", s.Contains.Except(s.StartsWith).Except(s.EndsWith))
                         </td>
                     </tr>
@@ -53,10 +60,18 @@
     </p>
 }
 
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <p>
+        @ErrorMessage
+    </p>
+}
+
 @code {
     private string? BoxEntry { set; get; }
     private List<LbSuggestion> LbSuggestions;
     private string? LbPath { set; get; }
+    private string? ErrorMessage { set; get; }
 
     protected async override Task OnInitializedAsync()
     {
@@ -80,11 +95,18 @@
 
     private async void SolvePuzzle()
     {
-        await LbService.EnterBox(BoxEntry);
-        LbSuggestions = await LbService.GetSuggestions();
-        //BoxEntry = string.Empty;
-        await LbService.FindShortestPath(null);
-        LbPath = LbService.BestPath;
+        try
+        {
+            await LbService.EnterBox(BoxEntry);
+            LbSuggestions = await LbService.GetSuggestions();
+            //BoxEntry = string.Empty;
+            await LbService.FindShortestPath(null);
+            LbPath = LbService.BestPath;
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.StackTrace;
+        }        
     }
 
     protected async Task ResetGuesses()

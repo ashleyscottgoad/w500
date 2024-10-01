@@ -63,6 +63,10 @@ namespace W500Core
             
             foreach (var rootWord in _words)
             {
+                if (!graph.Vertices.Contains(rootWord))
+                {
+                    continue;
+                }
                 var charsLeft = _charsLeft.ToHashSet();
                 Func<Edge<string>, double> edgeCost = edge =>
                 {
@@ -73,12 +77,14 @@ namespace W500Core
                 HashSet<string> visited = new HashSet<string>();
                 string nextWord = rootWord;
 
-                for (int i = 0; i < _maxGuesses; i++)
+                for (int i = 0; i <= _maxGuesses; i++)
                 {
                     visited.Add(nextWord);
                     charsLeft.RemoveWhere(x => nextWord.Contains(x));
                     dij.Compute(nextWord);
-                    var next = dij.Distances.Where(x => !visited.Contains(x.Key)).OrderBy(x => x.Value).First();
+                    var distances = dij.Distances.Where(x => !visited.Contains(x.Key));
+                    if (!distances.Any()) break;
+                    var next = distances.OrderBy(x => x.Value).First();
                     nextWord = next.Key;
                     dij.SetRootVertex(nextWord);
                     if (charsLeft.Count == 0)
