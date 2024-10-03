@@ -223,6 +223,27 @@ namespace W500Core.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to #!comment: This is a list of the top 100,000 most frequently-used English words
+        ///#!comment: according to Wiktionary.
+        ///#!comment:
+        ///#!comment: It was compiled in August 2005 and coalesced into a handy list for
+        ///#!comment: use in John the Ripper.
+        ///#!comment:
+        ///#!comment:
+        ///#!comment: Pull date: Sun Jan 15 22:03:54 2012 GMT
+        ///#!comment:
+        ///#!comment: Sources:
+        ///#!comment:
+        ///#!comment: http://en.wiktionary.org/wiki/Wiktionary:Frequency_lists#Top_English_words_lists
+        ///#!comment: http://en.wiktionary.org/wiki/Wiktionary:Frequency_lis [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string wordlist_100000 {
+            get {
+                return ResourceManager.GetString("wordlist_100000", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to the
         ///and
         ///have

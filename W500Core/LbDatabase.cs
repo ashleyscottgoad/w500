@@ -59,7 +59,7 @@
 
         internal HashSet<string> GetAllWords()
         {
-            return Properties.Resources.wordlist_4000.Split(Environment.NewLine).ToHashSet();
+            return Properties.Resources.wordlist_100000.Split('\n').Where(x => Char.IsAsciiLetterLower(x[0])).ToHashSet();
         }
 
         private bool _done;

@@ -77,7 +77,7 @@ namespace W500Core
                 HashSet<string> visited = new HashSet<string>();
                 string nextWord = rootWord;
 
-                for (int i = 0; i <= _maxGuesses; i++)
+                for (int i = 0; i <= bestPathLength; i++)
                 {
                     visited.Add(nextWord);
                     charsLeft.RemoveWhere(x => nextWord.Contains(x));
