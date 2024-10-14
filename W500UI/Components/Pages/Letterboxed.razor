@@ -3,6 +3,7 @@
 
 <PageTitle>LB</PageTitle>
 
+@using System.Diagnostics
 @using W500Core
 @using Microsoft.AspNetCore.Components.Forms
 @inject LbService LbService
@@ -12,17 +13,20 @@
     <h6><i>Ex: "gaphutcinmos" would represent a box with sides GAP+HUT+CIN+MOS</i></h6>
     <input @oninput="EnterBox" value="@BoxEntry" />
 </p>
+
 @if (LbPath?.Length > 0)
 {
     <p>
-        <b>Best Solution: </b>@LbPath        
+        <b>Best Solution: </b>@LbPath
     </p>
-}
-else if (BoxEntry?.Length == 12)
-{
     <p>
-        <b>No Solution Found!</b>
+        <i>Elapsed: @ElapsedSeconds</i>
     </p>
+
+}
+else if (SpinnerVisible)
+{
+    <Spinner Class="me-3" Type="SpinnerType.Dots" Color="SpinnerColor.Primary" />
 }
 
 @if (@LbSuggestions?.Count > 0)
@@ -60,18 +64,12 @@ else if (BoxEntry?.Length == 12)
     </p>
 }
 
-@if (!string.IsNullOrEmpty(ErrorMessage))
-{
-    <p>
-        @ErrorMessage
-    </p>
-}
-
 @code {
     private string? BoxEntry { set; get; }
     private List<LbSuggestion> LbSuggestions;
     private string? LbPath { set; get; }
-    private string? ErrorMessage { set; get; }
+    private string? ElapsedSeconds { set; get; }
+    private bool SpinnerVisible { set; get; }
 
     protected async override Task OnInitializedAsync()
     {
@@ -80,33 +78,29 @@ else if (BoxEntry?.Length == 12)
 
     protected async Task NewGame()
     {
+        SetSpinner(false);
         await LbService.Reset();
         LbSuggestions = new List<LbSuggestion>();
+        ElapsedSeconds = string.Empty;
         await RetrieveDailyPuzzle();
     }
 
     protected async Task RetrieveDailyPuzzle()
     {
+        //gaphutcinmos
+        //odiabtreckvp
         //get box from https://nytimes.com/puzzles/letter-boxed
         //validate word
         //Set BoxEntry
         //Call SolvePuzzle()
     }
 
-    private async void SolvePuzzle()
+    private async Task SolvePuzzle()
     {
-        try
-        {
-            await LbService.EnterBox(BoxEntry);
-            LbSuggestions = await LbService.GetSuggestions();
-            //BoxEntry = string.Empty;
-            await LbService.FindShortestPath(null);
-            LbPath = LbService.BestPath;
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = ex.StackTrace;
-        }        
+        await LbService.EnterBox(BoxEntry);
+        LbSuggestions = await LbService.GetSuggestions();
+        await LbService.FindShortestPath(null);
+        LbPath = LbService.BestPath;
     }
 
     protected async Task ResetGuesses()
@@ -115,11 +109,26 @@ else if (BoxEntry?.Length == 12)
         LbSuggestions = new List<LbSuggestion>();
     }
 
+    private void SetSpinner(bool set)
+    {
+        SpinnerVisible = set;
+        StateHasChanged();
+    }
 
     private async void EnterBox(ChangeEventArgs args)
     {
+        Stopwatch sw = new Stopwatch();
+        sw.Start();
+        LbPath = string.Empty;
+        LbSuggestions = new List<LbSuggestion>();
+        ElapsedSeconds = string.Empty;
+        SetSpinner(true);
         BoxEntry = args.Value.ToString().ToLower();
         if (BoxEntry?.Length != W500Constants.LbWordLength) return;
-        SolvePuzzle();
+        await Task.Run(() => SolvePuzzle());
+        sw.Stop();
+        ElapsedSeconds = string.Format("{0} seconds", Math.Round(sw.Elapsed.TotalSeconds,1));
+        SetSpinner(false);
+        await Task.CompletedTask;
     }
 }

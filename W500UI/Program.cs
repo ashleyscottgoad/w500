@@ -16,6 +16,8 @@ namespace W500UI
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
 
+            builder.Services.AddBlazorBootstrap();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

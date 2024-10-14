@@ -18,7 +18,7 @@ namespace W500Core
 
         public async Task EnterBox(string word)
         {
-            _words = _db.ValidWords(word);
+            _words = _db.ValidWords(word).Except(_excludedWords).ToHashSet();
             _charsLeft = _db.ValidChars;
             _suggestions = new List<LbSuggestion>();
 
@@ -31,6 +31,12 @@ namespace W500Core
                     _words.Where(x => x.Contains(c)).OrderByDescending(x => x.Length).ToList()
                     ));
             }
+        }
+
+        public async Task ExcludeWord(string word)
+        {
+            _excludedWords.Add(word);
+            _words.Remove(word);
         }
 
         private BidirectionalGraph<string, Edge<string>> ConstructGraph()
@@ -60,13 +66,11 @@ namespace W500Core
 
             string bestPath = string.Empty;
             int bestPathLength = _maxGuesses;
-            
-            foreach (var rootWord in _words)
+
+            var orderedWords = _words.OrderByDescending(x => x.ToCharArray().Intersect(_charsLeft).Count()).ToArray();
+
+            foreach (var rootWord in orderedWords)
             {
-                if (!graph.Vertices.Contains(rootWord))
-                {
-                    continue;
-                }
                 var charsLeft = _charsLeft.ToHashSet();
                 Func<Edge<string>, double> edgeCost = edge =>
                 {
@@ -77,7 +81,7 @@ namespace W500Core
                 HashSet<string> visited = new HashSet<string>();
                 string nextWord = rootWord;
 
-                for (int i = 0; i <= bestPathLength; i++)
+                for (int i = 0; i < bestPathLength; i++)
                 {
                     visited.Add(nextWord);
                     charsLeft.RemoveWhere(x => nextWord.Contains(x));
@@ -110,6 +114,7 @@ namespace W500Core
         private int _bestPathLength;
         private List<LbSuggestion> _suggestions;
         private HashSet<char> _charsLeft = new HashSet<char>();
-        private const int _maxGuesses = 6;
+        private const int _maxGuesses = 7;
+        private List<string> _excludedWords = new List<string>();
     }
 }
