@@ -122,9 +122,9 @@ else if (SpinnerVisible)
         LbPath = string.Empty;
         LbSuggestions = new List<LbSuggestion>();
         ElapsedSeconds = string.Empty;
-        SetSpinner(true);
         BoxEntry = args.Value.ToString().ToLower();
         if (BoxEntry?.Length != W500Constants.LbWordLength) return;
+        SetSpinner(true);
         await Task.Run(() => SolvePuzzle());
         sw.Stop();
         ElapsedSeconds = string.Format("{0} seconds", Math.Round(sw.Elapsed.TotalSeconds,1));
