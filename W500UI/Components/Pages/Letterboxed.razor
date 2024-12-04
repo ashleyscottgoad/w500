@@ -55,7 +55,7 @@
     private bool SpinnerVisible { set; get; }
     private string? OurSolution { set; get; }
 
-    protected async override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
         SetSpinner(false);
     }
@@ -74,75 +74,36 @@
         await LbService.SetBox(box);
     }
 
-    private string PrintBox(string box)
+    private async Task SolvePuzzle()
     {
-        if (string.IsNullOrEmpty(box))
-        {
-            return string.Empty;
-        }
-        var stringBuilder = new StringBuilder();
-        for (int i = 0; i < box.Length; i++)
-        {
-            if (i > 0 && i % 3 == 0)
-            {
-                stringBuilder.Append('+');
-            }
-            stringBuilder.Append(box[i]);
-        }
+        await LbService.EnterBox(BoxEntry);
+        LbSuggestions = await LbService.GetSuggestions();
+        await LbService.FindShortestPath(null);
+        LbPath = LbService.BestPath;
+    }
+
+    protected async Task ResetGuesses()
+    {
+        await LbService.Reset();
+        LbSuggestions = new List<LbSuggestion>();
+    }
 
         return stringBuilder.ToString();
     }
 
     private async Task SolveDailyPuzzle()
     {
-        SetSpinner(true);
-        ElapsedSeconds = string.Empty;
         Stopwatch sw = new Stopwatch();
         sw.Start();
         LbPath = string.Empty;
+        LbSuggestions = new List<LbSuggestion>();
+        ElapsedSeconds = string.Empty;
+        BoxEntry = args.Value.ToString().ToLower();
+        if (BoxEntry?.Length != W500Constants.LbWordLength) return;
+        SetSpinner(true);
         await Task.Run(() => SolvePuzzle());
         sw.Stop();
         ElapsedSeconds = $"{Math.Round(sw.Elapsed.TotalSeconds, 1)} seconds";
         SetSpinner(false);
-        await Task.CompletedTask;
-    }
-
-    private async Task<string> RetrieveHtmlFromUrl(string url)
-    {
-        try
-        {
-            var response = await Http.GetAsync(url);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsStringAsync();
-        }
-        catch (Exception ex)
-        {
-            // Handle exceptions as needed
-            Console.WriteLine($"Error retrieving HTML: {ex.Message}");
-            return string.Empty;
-        }
-    }
-
-    private async Task SolvePuzzle()
-    {
-        await LbService.EnterBox();
-        await LbService.FindShortestPath(null);
-        LbPath = LbService.BestPath;
-    }
-
-    private void SetSpinner(bool set)
-    {
-        SpinnerVisible = set;
-        StateHasChanged();
     }
 }
-
-<style>
-    .spinner-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        margin-top: 20px;
-    }
-</style>
