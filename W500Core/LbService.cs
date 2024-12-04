@@ -1,4 +1,4 @@
-﻿using QuickGraph;
+using QuickGraph;
 using QuickGraph.Algorithms.ShortestPath;
 
 namespace W500Core
@@ -39,7 +39,7 @@ namespace W500Core
                     _words.Where(x => x.StartsWith(c)).OrderByDescending(x => x.Length).ToList(),
                     _words.Where(x => x.EndsWith(c)).OrderByDescending(x => x.Length).ToList(),
                     _words.Where(x => x.Contains(c)).OrderByDescending(x => x.Length).ToList()
-                    ));
+                ));
             }
         }
 
