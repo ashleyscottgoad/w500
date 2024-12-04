@@ -22,7 +22,6 @@
     <p>
         <i>Elapsed: @ElapsedSeconds</i>
     </p>
-
 }
 else if (SpinnerVisible)
 {
@@ -66,12 +65,12 @@ else if (SpinnerVisible)
 
 @code {
     private string? BoxEntry { set; get; }
-    private List<LbSuggestion> LbSuggestions;
+    private List<LbSuggestion> LbSuggestions = new();
     private string? LbPath { set; get; }
     private string? ElapsedSeconds { set; get; }
     private bool SpinnerVisible { set; get; }
 
-    protected async override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
         await NewGame();
     }
@@ -80,7 +79,7 @@ else if (SpinnerVisible)
     {
         SetSpinner(false);
         await LbService.Reset();
-        LbSuggestions = new List<LbSuggestion>();
+        LbSuggestions.Clear();
         ElapsedSeconds = string.Empty;
         await RetrieveDailyPuzzle();
     }
@@ -97,16 +96,24 @@ else if (SpinnerVisible)
 
     private async Task SolvePuzzle()
     {
-        await LbService.EnterBox(BoxEntry);
-        LbSuggestions = await LbService.GetSuggestions();
-        await LbService.FindShortestPath(null);
-        LbPath = LbService.BestPath;
+        try
+        {
+            await LbService.EnterBox(BoxEntry);
+            LbSuggestions = await LbService.GetSuggestions();
+            await LbService.FindShortestPath(null);
+            LbPath = LbService.BestPath;
+        }
+        catch (Exception ex)
+        {
+            // Log the exception (consider using a logging framework)
+            Console.Error.WriteLine(ex);
+        }
     }
 
     protected async Task ResetGuesses()
     {
         await LbService.Reset();
-        LbSuggestions = new List<LbSuggestion>();
+        LbSuggestions.Clear();
     }
 
     private void SetSpinner(bool set)
@@ -117,18 +124,17 @@ else if (SpinnerVisible)
 
     private async void EnterBox(ChangeEventArgs args)
     {
-        Stopwatch sw = new Stopwatch();
+        var sw = new Stopwatch();
         sw.Start();
         LbPath = string.Empty;
-        LbSuggestions = new List<LbSuggestion>();
+        LbSuggestions.Clear();
         ElapsedSeconds = string.Empty;
-        BoxEntry = args.Value.ToString().ToLower();
+        BoxEntry = args.Value?.ToString()?.ToLower();
         if (BoxEntry?.Length != W500Constants.LbWordLength) return;
         SetSpinner(true);
-        await Task.Run(() => SolvePuzzle());
+        await SolvePuzzle();
         sw.Stop();
-        ElapsedSeconds = string.Format("{0} seconds", Math.Round(sw.Elapsed.TotalSeconds,1));
+        ElapsedSeconds = $"{Math.Round(sw.Elapsed.TotalSeconds, 1)} seconds";
         SetSpinner(false);
-        await Task.CompletedTask;
     }
 }
