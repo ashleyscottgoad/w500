@@ -16,7 +16,7 @@ namespace W500
             var word = "gaphutcinmos";
             LbService svc = new LbService();
             svc.Reset();
-            svc.EnterBox(word);
+            svc.EnterBox();
             svc.FindShortestPath(null);
         }
         static void MainW500(string[] args)

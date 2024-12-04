@@ -7,8 +7,8 @@ namespace W500Core
     {
         public async Task Reset()
         {
-            _db = new LbDatabase();
-            _db.Initialize();
+            //_db = new LbDatabase();
+            //_db.Initialize();
         }
 
         public Task<List<LbSuggestion>> GetSuggestions()
@@ -16,13 +16,23 @@ namespace W500Core
             return Task.FromResult(_suggestions);
         }
 
-        public async Task EnterBox(string word)
+        public void SetDictionary(string[] words)
         {
-            _words = _db.ValidWords(word).Except(_excludedWords).ToHashSet();
-            _charsLeft = _db.ValidChars;
+            _words = words.ToHashSet();
+        }
+
+        public async Task SetBox(string box)
+        {
+            _box = box;
+            await EnterBox();
+        }
+
+        public async Task EnterBox()
+        {
+            _charsLeft = _box.ToCharArray().ToHashSet();
             _suggestions = new List<LbSuggestion>();
 
-            foreach (var c in _db.ValidChars)
+            foreach (var c in _charsLeft)
             {
                 _suggestions.Add(new LbSuggestion(
                     c,
@@ -31,12 +41,6 @@ namespace W500Core
                     _words.Where(x => x.Contains(c)).OrderByDescending(x => x.Length).ToList()
                     ));
             }
-        }
-
-        public async Task ExcludeWord(string word)
-        {
-            _excludedWords.Add(word);
-            _words.Remove(word);
         }
 
         private BidirectionalGraph<string, Edge<string>> ConstructGraph()
@@ -97,6 +101,12 @@ namespace W500Core
                         {
                             bestPathLength = visited.Count;
                             bestPath = string.Join(" -> ", visited);
+                            if (bestPathLength == _minGuesses)
+                            {
+                                _bestPath = bestPath;
+                                _bestPathLength = bestPathLength;
+                                return;
+                            }
                         }
                         break;
                     }
@@ -108,13 +118,16 @@ namespace W500Core
         }
 
         public string BestPath => _bestPath;
-        private LbDatabase _db;
+        public string Box => _box;
+        //private LbDatabase _db;
+        private string _box;
         private HashSet<string> _words;
         private string _bestPath = string.Empty;
         private int _bestPathLength;
         private List<LbSuggestion> _suggestions;
         private HashSet<char> _charsLeft = new HashSet<char>();
-        private const int _maxGuesses = 7;
+        private const int _maxGuesses = 4;
+        private const int _minGuesses = 2;
         private List<string> _excludedWords = new List<string>();
     }
 }

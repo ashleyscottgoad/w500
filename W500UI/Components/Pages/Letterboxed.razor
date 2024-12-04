@@ -4,15 +4,31 @@
 <PageTitle>LB</PageTitle>
 
 @using System.Diagnostics
+@using HtmlAgilityPack
+@using System.Text
 @using W500Core
 @using Microsoft.AspNetCore.Components.Forms
 @inject LbService LbService
+@inject HttpClient Http
 
 <p>
-    <h5>Enter "Box" as 12-letter Word</h5>
-    <h6><i>Ex: "gaphutcinmos" would represent a box with sides GAP+HUT+CIN+MOS</i></h6>
-    <input @oninput="EnterBox" value="@BoxEntry" />
+    <button @onclick="RetrieveDailyPuzzle" disabled="@SpinnerVisible">Retrieve Puzzle</button>
 </p>
+<p>
+    <h5>Box: @PrintBox(LbService.Box)</h5>
+</p>
+@if (LbService.Box?.Length > 0)
+{
+    <p><button @onclick="SolveDailyPuzzle" disabled="@SpinnerVisible">Solve Puzzle</button></p>
+}
+
+@if (SpinnerVisible)
+{
+    <div class="spinner-container">
+        <Spinner Class="me-3" Type="SpinnerType.Dots" Color="SpinnerColor.Primary" />
+        <p>Loading, please wait...</p>
+    </div>
+}
 
 @if (LbPath?.Length > 0)
 {
@@ -22,91 +38,96 @@
     <p>
         <i>Elapsed: @ElapsedSeconds</i>
     </p>
-
-}
-else if (SpinnerVisible)
-{
-    <Spinner Class="me-3" Type="SpinnerType.Dots" Color="SpinnerColor.Primary" />
 }
 
-@if (@LbSuggestions?.Count > 0)
+@if (OurSolution?.Length > 0)
 {
     <p>
-        <table class="table table-light table-bordered">
-            <thead class="table-dark fw-bold">
-                <tr>
-                    <td>Letter</td>
-                    <td>Starts With</td>
-                    <td>Ends With</td>
-                    <td>Contains</td>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var s in LbSuggestions.OrderBy(x => x.Letter))
-                {
-                    <tr>
-                        <td class="table-primary fw-bold">
-                            @s.Letter
-                        </td>
-                        <td class="table-success">
-                            @String.Join(", ", s.StartsWith)
-                        </td>
-                        <td class="table-warning">
-                            @String.Join(", ", s.EndsWith)
-                        </td>
-                        <td class="table-secondary">
-                            @String.Join(", ", s.Contains.Except(s.StartsWith).Except(s.EndsWith))
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+        <b>Official Solution: </b>@OurSolution
     </p>
 }
 
 @code {
     private string? BoxEntry { set; get; }
-    private List<LbSuggestion> LbSuggestions;
+    private List<LbSuggestion> LbSuggestions = new();
     private string? LbPath { set; get; }
     private string? ElapsedSeconds { set; get; }
     private bool SpinnerVisible { set; get; }
+    private string? OurSolution { set; get; }
 
     protected async override Task OnInitializedAsync()
     {
-        await NewGame();
-    }
-
-    protected async Task NewGame()
-    {
         SetSpinner(false);
-        await LbService.Reset();
-        LbSuggestions = new List<LbSuggestion>();
-        ElapsedSeconds = string.Empty;
-        await RetrieveDailyPuzzle();
     }
 
     protected async Task RetrieveDailyPuzzle()
     {
-        //gaphutcinmos
-        //odiabtreckvp
-        //get box from https://nytimes.com/puzzles/letter-boxed
-        //validate word
-        //Set BoxEntry
-        //Call SolvePuzzle()
+        string filePath = "compressed.html";
+        var htmlDoc = new HtmlDocument();
+        var htmlTask = await RetrieveHtmlFromUrl("https://nytimes.com/puzzles/letter-boxed");
+        htmlDoc.LoadHtml(htmlTask);
+        htmlDoc.Save(filePath);
+        var gameData = HtmlExtractor.ExtractGameData(filePath);
+        LbService.SetDictionary(gameData.dictionary);
+        OurSolution = string.Join(", ", gameData.ourSolution);
+        var box = string.Join("", gameData.sides);
+        await LbService.SetBox(box);
+    }
+
+    private string PrintBox(string box)
+    {
+        if (string.IsNullOrEmpty(box))
+        {
+            return string.Empty;
+        }
+        var stringBuilder = new StringBuilder();
+        for (int i = 0; i < box.Length; i++)
+        {
+            if (i > 0 && i % 3 == 0)
+            {
+                stringBuilder.Append('+');
+            }
+            stringBuilder.Append(box[i]);
+        }
+
+        return stringBuilder.ToString();
+    }
+
+    private async Task SolveDailyPuzzle()
+    {
+        SetSpinner(true);
+        ElapsedSeconds = string.Empty;
+        Stopwatch sw = new Stopwatch();
+        sw.Start();
+        LbPath = string.Empty;
+        await Task.Run(() => SolvePuzzle());
+        sw.Stop();
+        ElapsedSeconds = $"{Math.Round(sw.Elapsed.TotalSeconds, 1)} seconds";
+        SetSpinner(false);
+        await Task.CompletedTask;
+    }
+
+    private async Task<string> RetrieveHtmlFromUrl(string url)
+    {
+        try
+        {
+            var response = await Http.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadAsStringAsync();
+        }
+        catch (Exception ex)
+        {
+            // Handle exceptions as needed
+            Console.WriteLine($"Error retrieving HTML: {ex.Message}");
+            return string.Empty;
+        }
     }
 
     private async Task SolvePuzzle()
     {
-        await LbService.EnterBox(BoxEntry);
-        LbSuggestions = await LbService.GetSuggestions();
+        await LbService.EnterBox();
         await LbService.FindShortestPath(null);
         LbPath = LbService.BestPath;
-    }
-
-    protected async Task ResetGuesses()
-    {
-        await LbService.Reset();
-        LbSuggestions = new List<LbSuggestion>();
     }
 
     private void SetSpinner(bool set)
@@ -114,21 +135,14 @@ else if (SpinnerVisible)
         SpinnerVisible = set;
         StateHasChanged();
     }
-
-    private async void EnterBox(ChangeEventArgs args)
-    {
-        Stopwatch sw = new Stopwatch();
-        sw.Start();
-        LbPath = string.Empty;
-        LbSuggestions = new List<LbSuggestion>();
-        ElapsedSeconds = string.Empty;
-        BoxEntry = args.Value.ToString().ToLower();
-        if (BoxEntry?.Length != W500Constants.LbWordLength) return;
-        SetSpinner(true);
-        await Task.Run(() => SolvePuzzle());
-        sw.Stop();
-        ElapsedSeconds = string.Format("{0} seconds", Math.Round(sw.Elapsed.TotalSeconds,1));
-        SetSpinner(false);
-        await Task.CompletedTask;
-    }
 }
+
+<style>
+    .spinner-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-top: 20px;
+    }
+</style>

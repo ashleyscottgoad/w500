@@ -9,10 +9,17 @@
 
   <ItemGroup>
     <PackageReference Include="Blazor.Bootstrap" Version="3.0.0" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.71" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\W500Core\W500Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="compressed.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

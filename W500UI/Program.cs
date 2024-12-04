@@ -11,6 +11,7 @@ namespace W500UI
 
             builder.Services.AddScoped<W500Service>();
             builder.Services.AddScoped<LbService>();
+            builder.Services.AddHttpClient();
 
             // Add services to the container.
             builder.Services.AddRazorComponents()
