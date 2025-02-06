@@ -12,14 +12,14 @@
 @inject HttpClient Http
 
 <p>
-    <button @onclick="RetrieveDailyPuzzle" disabled="@SpinnerVisible">Retrieve Puzzle</button>
+    <Button Color="ButtonColor.Secondary" @onclick="RetrieveDailyPuzzle" disabled="@SpinnerVisible">Retrieve Puzzle</Button>
 </p>
 <p>
     <h5>Box: @PrintBox(LbService.Box)</h5>
 </p>
 @if (LbService.Box?.Length > 0)
 {
-    <p><button @onclick="SolveDailyPuzzle" disabled="@SpinnerVisible">Solve Puzzle</button></p>
+    <p><Button Color="ButtonColor.Success" @onclick="SolveDailyPuzzle" disabled="@SpinnerVisible">Solve Puzzle</Button></p>
 }
 
 @if (SpinnerVisible)
@@ -68,7 +68,8 @@
         htmlDoc.LoadHtml(htmlTask);
         htmlDoc.Save(filePath);
         var gameData = HtmlExtractor.ExtractGameData(filePath);
-        LbService.SetDictionary(gameData.dictionary);
+        var newDict = gameData.dictionary.Except(gameData.ourSolution).ToArray();
+        LbService.SetDictionary(newDict);
         OurSolution = string.Join(", ", gameData.ourSolution);
         var box = string.Join("", gameData.sides);
         await LbService.SetBox(box);
