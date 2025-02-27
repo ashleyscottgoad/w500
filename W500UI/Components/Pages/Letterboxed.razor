@@ -127,7 +127,7 @@
     private async Task SolvePuzzle()
     {
         await LbService.EnterBox();
-        await LbService.FindShortestPath(null);
+        await LbService.FindShortestPath();
         LbPath = LbService.BestPath;
     }
 

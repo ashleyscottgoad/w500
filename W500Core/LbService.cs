@@ -1,21 +1,12 @@
 using QuickGraph;
 using QuickGraph.Algorithms.ShortestPath;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace W500Core
 {
     public class LbService
     {
-        public async Task Reset()
-        {
-            //_db = new LbDatabase();
-            //_db.Initialize();
-        }
-
-        public Task<List<LbSuggestion>> GetSuggestions()
-        {
-            return Task.FromResult(_suggestions);
-        }
-
         public void SetDictionary(string[] words)
         {
             _words = words.ToHashSet();
@@ -29,105 +20,66 @@ namespace W500Core
 
         public async Task EnterBox()
         {
-            _charsLeft = _box.ToCharArray().ToHashSet();
-            _suggestions = new List<LbSuggestion>();
+            BitArray solved = new BitArray(12, true);
+            _solvedInt = GetIntFromBitArray(solved);
 
-            foreach (var c in _charsLeft)
+            int i = 0;
+            _boxLetterArray = _box.ToDictionary(x => x, y => i++);
+
+            foreach (var word in _words)
             {
-                _suggestions.Add(new LbSuggestion(
-                    c,
-                    _words.Where(x => x.StartsWith(c)).OrderByDescending(x => x.Length).ToList(),
-                    _words.Where(x => x.EndsWith(c)).OrderByDescending(x => x.Length).ToList(),
-                    _words.Where(x => x.Contains(c)).OrderByDescending(x => x.Length).ToList()
-                ));
-            }
-        }
-
-        private BidirectionalGraph<string, Edge<string>> ConstructGraph()
-        {
-            var edges = new List<Edge<string>>();
-
-            foreach (var s in _suggestions)
-            {
-                foreach (var sw in s.StartsWith)
+                BitArray ba = new BitArray(12);
+                foreach (var c in word)
                 {
-                    foreach (var ew in s.EndsWith)
-                    {
-                        edges.Add(new Edge<string>(ew, sw));
-                    }
+                    ba[_boxLetterArray[c]] = true;
                 }
+                _bitArrays[word] = GetIntFromBitArray(ba);
             }
-
-            return edges.ToBidirectionalGraph<string, Edge<string>>();
         }
 
-        public async Task FindShortestPath(BidirectionalGraph<string, Edge<string>> graph)
+        private int GetIntFromBitArray(BitArray bitArray)
         {
-            if (graph == null)
+            if (bitArray.Length > 32)
+                throw new ArgumentException("Argument length shall be at most 32 bits.");
+
+            int[] array = new int[1];
+            bitArray.CopyTo(array, 0);
+            return array[0];
+        }
+
+        public async Task FindShortestPath()
+        {
+            for (int i = 0; i < _bitArrays.Count - 1; i++)
             {
-                graph = ConstructGraph();
-            }
-
-            string bestPath = string.Empty;
-            int bestPathLength = _maxGuesses;
-
-            var orderedWords = _words.OrderByDescending(x => x.ToCharArray().Intersect(_charsLeft).Count()).ToArray();
-
-            foreach (var rootWord in orderedWords)
-            {
-                var charsLeft = _charsLeft.ToHashSet();
-                Func<Edge<string>, double> edgeCost = edge =>
+                for (int j = i + 1; j < _bitArrays.Count; j++)
                 {
-                    return 12 - edge.Target.ToCharArray().Distinct().Intersect(charsLeft).Count();
-                };
+                    var first = _bitArrays.Values.ElementAt(i);
+                    var second = _bitArrays.Values.ElementAt(j);
 
-                var dij = new DijkstraShortestPathAlgorithm<string, Edge<string>>(graph, edgeCost);
-                HashSet<string> visited = new HashSet<string>();
-                string nextWord = rootWord;
-
-                for (int i = 0; i < bestPathLength; i++)
-                {
-                    visited.Add(nextWord);
-                    charsLeft.RemoveWhere(x => nextWord.Contains(x));
-                    dij.Compute(nextWord);
-                    var distances = dij.Distances.Where(x => !visited.Contains(x.Key));
-                    if (!distances.Any()) break;
-                    var next = distances.OrderBy(x => x.Value).First();
-                    nextWord = next.Key;
-                    dij.SetRootVertex(nextWord);
-                    if (charsLeft.Count == 0)
+                    if (_solvedInt == (first | second))
                     {
-                        if (visited.Count < bestPathLength)
+                        var w1 = _bitArrays.Keys.ElementAt(i);
+                        var w2 = _bitArrays.Keys.ElementAt(j);
+                        var testPath = w1 + " --> " + w2;
+                        if (string.IsNullOrEmpty(_bestPath) || testPath.Length < _bestPathLength)
                         {
-                            bestPathLength = visited.Count;
-                            bestPath = string.Join(" -> ", visited);
-                            if (bestPathLength == _minGuesses)
-                            {
-                                _bestPath = bestPath;
-                                _bestPathLength = bestPathLength;
-                                return;
-                            }
+                            _bestPath = testPath;
+                            _bestPathLength = w1.Length + w2.Length;
+                            if (_bestPathLength == 12) return;
                         }
-                        break;
                     }
                 }
             }
-
-            _bestPath = bestPath;
-            _bestPathLength = bestPathLength;
         }
 
         public string BestPath => _bestPath;
         public string Box => _box;
-        //private LbDatabase _db;
-        private string _box;
-        private HashSet<string> _words;
+        private string _box = string.Empty;
+        private HashSet<string> _words = new HashSet<string>();
         private string _bestPath = string.Empty;
         private int _bestPathLength;
-        private List<LbSuggestion> _suggestions;
-        private HashSet<char> _charsLeft = new HashSet<char>();
-        private const int _maxGuesses = 4;
-        private const int _minGuesses = 2;
-        private List<string> _excludedWords = new List<string>();
+        private Dictionary<char, int> _boxLetterArray = new Dictionary<char, int>();
+        Dictionary<string, int> _bitArrays = new Dictionary<string, int>();
+        private int _solvedInt;
     }
 }
