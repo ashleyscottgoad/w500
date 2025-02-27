@@ -1,7 +1,4 @@
-using QuickGraph;
-using QuickGraph.Algorithms.ShortestPath;
 using System.Collections;
-using System.Collections.Generic;
 
 namespace W500Core
 {
@@ -20,7 +17,7 @@ namespace W500Core
 
         public async Task EnterBox()
         {
-            BitArray solved = new BitArray(12, true);
+            BitArray solved = new BitArray(BoxLength, true);
             _solvedInt = GetIntFromBitArray(solved);
 
             int i = 0;
@@ -28,7 +25,7 @@ namespace W500Core
 
             foreach (var word in _words)
             {
-                BitArray ba = new BitArray(12);
+                BitArray ba = new BitArray(BoxLength);
                 foreach (var c in word)
                 {
                     ba[_boxLetterArray[c]] = true;
@@ -65,7 +62,7 @@ namespace W500Core
                         {
                             _bestPath = testPath;
                             _bestPathLength = w1.Length + w2.Length;
-                            if (_bestPathLength == 12) return;
+                            if (_bestPathLength <= MaximumAcceptableLength) return;
                         }
                     }
                 }
@@ -78,6 +75,8 @@ namespace W500Core
         private HashSet<string> _words = new HashSet<string>();
         private string _bestPath = string.Empty;
         private int _bestPathLength;
+        private const int BoxLength = 12;
+        private const int MaximumAcceptableLength = 14;
         private Dictionary<char, int> _boxLetterArray = new Dictionary<char, int>();
         Dictionary<string, int> _bitArrays = new Dictionary<string, int>();
         private int _solvedInt;

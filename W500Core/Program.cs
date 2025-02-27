@@ -1,8 +1,4 @@
-﻿using QuickGraph.Data;
-using System.Data;
-using W500Core;
-
-namespace W500
+﻿namespace W500
 {
     internal class Program
     {
