@@ -50,17 +50,16 @@ namespace W500Core
             {
                 for (int j = i + 1; j < _bitArrays.Count; j++)
                 {
-                    var first = _bitArrays.Values.ElementAt(i);
-                    var second = _bitArrays.Values.ElementAt(j);
+                    var w1 = _bitArrays.Keys.ElementAt(i);
+                    var w2 = _bitArrays.Keys.ElementAt(j);
+                    var w1val = _bitArrays.Values.ElementAt(i);
+                    var w2val = _bitArrays.Values.ElementAt(j);
 
-                    if (_solvedInt == (first | second))
+                    if (_solvedInt == (w1val | w2val) && w1[w1.Length - 1] == w2[0])
                     {
-                        var w1 = _bitArrays.Keys.ElementAt(i);
-                        var w2 = _bitArrays.Keys.ElementAt(j);
-                        var testPath = w1 + " --> " + w2;
-                        if (string.IsNullOrEmpty(_bestPath) || testPath.Length < _bestPathLength)
+                        if (string.IsNullOrEmpty(_bestPath) || (w1.Length + w2.Length) < _bestPathLength)
                         {
-                            _bestPath = testPath;
+                            _bestPath = w1 + " --> " + w2;
                             _bestPathLength = w1.Length + w2.Length;
                             if (_bestPathLength <= MaximumAcceptableLength) return;
                         }
@@ -76,7 +75,7 @@ namespace W500Core
         private string _bestPath = string.Empty;
         private int _bestPathLength;
         private const int BoxLength = 12;
-        private const int MaximumAcceptableLength = 14;
+        private const int MaximumAcceptableLength = 15;
         private Dictionary<char, int> _boxLetterArray = new Dictionary<char, int>();
         Dictionary<string, int> _bitArrays = new Dictionary<string, int>();
         private int _solvedInt;
