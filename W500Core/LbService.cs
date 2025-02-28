@@ -55,13 +55,17 @@ namespace W500Core
                     var w1val = _bitArrays.Values.ElementAt(i);
                     var w2val = _bitArrays.Values.ElementAt(j);
 
-                    if (_solvedInt == (w1val | w2val) && w1[w1.Length - 1] == w2[0])
+                    if (_solvedInt == (w1val | w2val))
                     {
-                        if (string.IsNullOrEmpty(_bestPath) || (w1.Length + w2.Length) < _bestPathLength)
+                        if (w1[w1.Length - 1] == w2[0] || w1[0] == w2[w2.Length - 1])
                         {
-                            _bestPath = w1 + " --> " + w2;
-                            _bestPathLength = w1.Length + w2.Length;
-                            if (_bestPathLength <= MinimumAcceptableLength) return;
+                            if (string.IsNullOrEmpty(_bestPath) || (w1.Length + w2.Length) < _bestPathLength)
+                            {
+                                _bestPath = w1 + " --> " + w2;
+                                _bestPathLength = w1.Length + w2.Length;
+                                if (_bestPathLength <= MinimumAcceptableLength) return;
+                            }
+
                         }
                     }
                 }
