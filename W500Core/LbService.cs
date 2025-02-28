@@ -61,7 +61,7 @@ namespace W500Core
                         {
                             _bestPath = w1 + " --> " + w2;
                             _bestPathLength = w1.Length + w2.Length;
-                            if (_bestPathLength <= MaximumAcceptableLength) return;
+                            if (_bestPathLength <= MinimumAcceptableLength) return;
                         }
                     }
                 }
@@ -73,9 +73,10 @@ namespace W500Core
         private string _box = string.Empty;
         private HashSet<string> _words = new HashSet<string>();
         private string _bestPath = string.Empty;
-        private int _bestPathLength;
+        private int _bestPathLength = MaximumAcceptableLength;
         private const int BoxLength = 12;
-        private const int MaximumAcceptableLength = 15;
+        private const int MinimumAcceptableLength = 14;
+        private const int MaximumAcceptableLength = 20;
         private Dictionary<char, int> _boxLetterArray = new Dictionary<char, int>();
         Dictionary<string, int> _bitArrays = new Dictionary<string, int>();
         private int _solvedInt;
