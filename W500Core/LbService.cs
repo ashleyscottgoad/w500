@@ -79,8 +79,8 @@ namespace W500Core
         private string _bestPath = string.Empty;
         private int _bestPathLength = MaximumAcceptableLength;
         private const int BoxLength = 12;
-        private const int MinimumAcceptableLength = 14;
-        private const int MaximumAcceptableLength = 20;
+        private const int MinimumAcceptableLength = 16;
+        private const int MaximumAcceptableLength = 22;
         private Dictionary<char, int> _boxLetterArray = new Dictionary<char, int>();
         Dictionary<string, int> _bitArrays = new Dictionary<string, int>();
         private int _solvedInt;

@@ -15,6 +15,9 @@
     <Button Color="ButtonColor.Primary" @onclick="RetrieveDailyPuzzle" disabled="@SpinnerVisible">Retrieve Puzzle</Button>
 </p>
 <p>
+    <Button Color="ButtonColor.Secondary" @onclick="RetrieveLocalPuzzle" disabled="@SpinnerVisible">Retrieve Puzzle (Local)</Button>
+</p>
+<p>
     <h5>Box: @PrintBox(LbService.Box)</h5>
 </p>
 @if (LbService.Box?.Length > 0)
@@ -68,6 +71,17 @@
         htmlDoc.LoadHtml(htmlTask);
         htmlDoc.Save(filePath);
         var gameData = HtmlExtractor.ExtractGameData(filePath);
+        var newDict = gameData.dictionary.Except(gameData.ourSolution).ToArray();
+        LbService.SetDictionary(newDict);
+        OurSolution = string.Join(", ", gameData.ourSolution);
+        var box = string.Join("", gameData.sides);
+        await LbService.SetBox(box);
+    }
+
+    protected async Task RetrieveLocalPuzzle()
+    {
+        string filePath = "sampleGameData.json";
+        var gameData = HtmlExtractor.ExtractGameData(filePath, false);
         var newDict = gameData.dictionary.Except(gameData.ourSolution).ToArray();
         LbService.SetDictionary(newDict);
         OurSolution = string.Join(", ", gameData.ourSolution);
