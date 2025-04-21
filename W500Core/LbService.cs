@@ -59,13 +59,16 @@ namespace W500Core
                     {
                         if (w1[w1.Length - 1] == w2[0] || w1[0] == w2[w2.Length - 1])
                         {
-                            if (string.IsNullOrEmpty(_bestPath) || (w1.Length + w2.Length) < _bestPathLength)
+                            if (w1[w1.Length - 1] == w2[0])
                             {
                                 _bestPath = w1 + " --> " + w2;
-                                _bestPathLength = w1.Length + w2.Length;
-                                if (_bestPathLength <= MinimumAcceptableLength) return;
                             }
-
+                            else
+                            {
+                                _bestPath = w2 + " --> " + w1;
+                            }
+                            _bestPathLength = w1.Length + w2.Length;
+                            if (_bestPathLength <= MinimumAcceptableLength) return;
                         }
                     }
                 }
@@ -79,7 +82,7 @@ namespace W500Core
         private string _bestPath = string.Empty;
         private int _bestPathLength = MaximumAcceptableLength;
         private const int BoxLength = 12;
-        private const int MinimumAcceptableLength = 16;
+        private const int MinimumAcceptableLength = 22;
         private const int MaximumAcceptableLength = 22;
         private Dictionary<char, int> _boxLetterArray = new Dictionary<char, int>();
         Dictionary<string, int> _bitArrays = new Dictionary<string, int>();
